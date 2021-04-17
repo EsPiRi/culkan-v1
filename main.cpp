@@ -137,20 +137,7 @@ private:
         {
             createInfo.enabledLayerCount = 0;
         }
-        /*uint32_t glfwExtensionCount = 0;
-        const char **glfwExtensions;
-
-        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-        createInfo.enabledExtensionCount = glfwExtensionCount;
-        createInfo.ppEnabledExtensionNames = glfwExtensions;
-
-        for (size_t i = 0; i < glfwExtensionCount; i++)
-        {
-            std::cout << glfwExtensions[i] << std::endl;
-        }*/
-
-        //createInfo.enabledLayerCount = 0;
+        
 
         auto extensions=getRequiredExtensions();
         createInfo.enabledExtensionCount=static_cast<uint32_t>(extensions.size());
