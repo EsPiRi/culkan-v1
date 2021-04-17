@@ -31,6 +31,13 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 }
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        func(instance, debugMessenger, pAllocator);
+    }
+}
 class HelloTriangleApplication
 {
 public:
@@ -82,7 +89,7 @@ private:
 
         if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
         {
-            std::cout << "failed to set up debug messenger!" << std::endl;
+            std::cerr << "failed to set up debug messenger!" << std::endl;
             return;
         }
     }
@@ -97,6 +104,10 @@ private:
 
     void cleanup()
     {
+        if(enableValidationLayers){
+            DestroyDebugUtilsMessengerEXT(instance,debugMessenger,nullptr);
+        }
+
         vkDestroyInstance(instance, nullptr);
 
         glfwDestroyWindow(window);
@@ -161,7 +172,7 @@ private:
     {
         if (enableValidationLayers && !checkValidationLayerSupport())
         {
-            std::cout << "validation layers requested, but not available!" << std::endl;
+            std::cerr << "validation layers requested, but not available!" << std::endl;
             return;
         }
 
@@ -195,8 +206,25 @@ private:
 
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
         {
-            std::cout << "failed to create instance" << std::endl;
+            std::cerr << "failed to create instance" << std::endl;
             exit(1);
+        }
+
+        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+        if(enableValidationLayers){
+            createInfo.enabledLayerCount=static_cast<uint32_t>(validationLayers.size());
+            createInfo.ppEnabledLayerNames=validationLayers.data();
+
+            populateDebugMessengerCreateInfo(debugCreateInfo);
+            createInfo.pNext=(VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        }
+        else{
+            createInfo.enabledLayerCount=0;
+            createInfo.pNext=nullptr;
+        }
+
+        if(vkCreateInstance(&createInfo,nullptr,&instance)!=VK_SUCCESS){
+            std::cerr<<"Failed to create instance"<<std::endl;
         }
     }
 };
