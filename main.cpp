@@ -21,11 +21,6 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-struct QueueFamilyIndices
-{
-    std::optional<uint32_t> graphicsFamily;
-};
-
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger)
 {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -47,7 +42,14 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
         func(instance, debugMessenger, pAllocator);
     }
 }
-
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+    bool isComplete()
+    {
+        return graphicsFamily.has_value();
+    }
+};
 class HelloTriangleApplication
 {
 public:
@@ -93,7 +95,7 @@ private:
             throw std::runtime_error("failed to find GPUs with Vulkan support!");
         }
 
-        std::vector<VkPhysicalDevice> devices(devicesCount);
+        std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
         std::multimap<int, VkPhysicalDevice> candidates;
@@ -115,7 +117,8 @@ private:
 
     bool isDeviceSuitable(VkPhysicalDevice device)
     {
-        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+        QueueFamilyIndices indices = findQueueFamilies(device);
+        return indices.isComplete();
     }
 
     int rateDeviceSuitability(VkPhysicalDevice device)
@@ -153,7 +156,11 @@ private:
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
-                indices.graphicsFamily = 1;
+                indices.graphicsFamily = i;
+            }
+            if (indices.isComplete())
+            {
+                break;
             }
             i++;
         }
