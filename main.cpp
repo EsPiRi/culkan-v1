@@ -10,6 +10,15 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
+const std::vector<const char *> validationLayers = {
+    "VK_LAYER_KHRONOS_validation"};
+
+#ifndef NDEBUG
+const bool enableValidationLayers = false;
+#else
+const bool enableValidationLayers = true;
+#endif
+
 class HelloTriangleApplication
 {
 public:
@@ -56,8 +65,56 @@ private:
         glfwTerminate();
     }
 
+    bool checkValidationLayerSupport()
+    {
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for (const char *layerName : validationLayers)
+        {
+            bool layerFound = false;
+            for (const auto &layerProperties : availableLayers)
+            {
+                if (strcmp(layerName, layerProperties.layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    std::vector<const char *> getRequiredExtensions()
+    {
+        uint32_t glfwExtensionCount = 0;
+        const char **glfwExtensions;
+        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+        if (enableValidationLayers)
+        {
+            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        }
+        return extensions;
+    }
+
     void createInstance()
     {
+        if (enableValidationLayers && !checkValidationLayerSupport())
+        {
+            std::cout << "validation layers requested, but not available!" << std::endl;
+            return;
+        }
 
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -71,7 +128,16 @@ private:
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        uint32_t glfwExtensionCount = 0;
+        if (enableValidationLayers)
+        {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            createInfo.ppEnabledExtensionNames = validationLayers.data();
+        }
+        else
+        {
+            createInfo.enabledLayerCount = 0;
+        }
+        /*uint32_t glfwExtensionCount = 0;
         const char **glfwExtensions;
 
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -82,10 +148,15 @@ private:
         for (size_t i = 0; i < glfwExtensionCount; i++)
         {
             std::cout << glfwExtensions[i] << std::endl;
-        }
+        }*/
 
-        createInfo.enabledLayerCount = 0;
+        //createInfo.enabledLayerCount = 0;
 
+        auto extensions=getRequiredExtensions();
+        createInfo.enabledExtensionCount=static_cast<uint32_t>(extensions.size());
+        createInfo.ppEnabledExtensionNames=extensions.data();
+
+        
         VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
@@ -107,6 +178,9 @@ private:
         {
             std::cout << "\t" << extension.extensionName << "\n";
         }
+        
+
+        
     }
 };
 
