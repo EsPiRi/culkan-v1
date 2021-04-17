@@ -90,16 +90,18 @@ private:
         std::vector<VkPhysicalDevice> devices(devicesCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-        
+        std::multimap<int, VkPhysicalDevice> candidates;
         for (const auto &device : devices)
         {
-            if (isDeviceSuitable(device))
-            {
-                physicalDevice = device;
-                break;
-            }
+            int score = rateDeviceSuitability(device);
+            candidates.insert(std::make_pair(score, device));
         }
-        if (physicalDevice == VK_NULL_HANDLE)
+
+        if (candidates.rbegin()->first > 0)
+        {
+            physicalDevice = candidates.rbegin()->second;
+        }
+        else
         {
             throw std::runtime_error("Failed to find a suitable GPU!");
         }
@@ -107,12 +109,28 @@ private:
 
     bool isDeviceSuitable(VkPhysicalDevice device)
     {
+        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+    }
+
+    int rateDeviceSuitability(VkPhysicalDevice device)
+    {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
         VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+        int score = 0;
+        if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+        {
+            score += 1000;
+        }
+        score += deviceProperties.limits.maxImageDimension2D;
+
+        if (!deviceFeatures.geometryShader)
+        {
+            return 0;
+        }
+        return score;
     }
 
     void mainLoop()
