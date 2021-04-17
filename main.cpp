@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <cstdlib>
+#include <map>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -74,6 +75,7 @@ private:
         setupDebugMessenger();
         pickPhysicalDevice();
     }
+
     void pickPhysicalDevice()
     {
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -88,6 +90,7 @@ private:
         std::vector<VkPhysicalDevice> devices(devicesCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+        
         for (const auto &device : devices)
         {
             if (isDeviceSuitable(device))
@@ -104,7 +107,12 @@ private:
 
     bool isDeviceSuitable(VkPhysicalDevice device)
     {
-        return true;
+        VkPhysicalDeviceProperties deviceProperties;
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
     }
 
     void mainLoop()
