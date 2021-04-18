@@ -464,8 +464,7 @@ private:
                 static_cast<uint32_t>(width),
                 static_cast<uint32_t>(height)};
 
-            //actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-            //actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+            
             uint32_t tempWidth = ((capabilities.maxImageExtent.width) < (actualExtent.width) ? (capabilities.maxImageExtent.width) : (actualExtent.width));
             uint32_t tempHeight = ((capabilities.maxImageExtent.height) < (actualExtent.height) ? (capabilities.maxImageExtent.height) : (actualExtent.height));
             tempWidth = ((capabilities.minImageExtent.width) > (actualExtent.width) ? (capabilities.minImageExtent.width) : (actualExtent.width));
