@@ -5,10 +5,12 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 20)
 include_directories(
 	external
+	shaders
 	)
 
 add_subdirectory(external/glfw-3.3.4)
 add_subdirectory(external/glm)
+
 
 add_executable(culkan-v1 main.cpp)
 

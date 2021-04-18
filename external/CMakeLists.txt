@@ -1,5 +1,5 @@
 add_subdirectory(
-	external
 	glm
-	glfw
+	glfw-3.3.4
+	vulkan
 	)
