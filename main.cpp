@@ -464,8 +464,7 @@ private:
                 static_cast<uint32_t>(width),
                 static_cast<uint32_t>(height)};
 
-            
-            uint32_t tempWidth = ((capabilities.maxImageExtent.width) < (actualExtent.width) ? (capabilities.maxImageExtent.width) : (actualExtent.width));
+                        uint32_t tempWidth = ((capabilities.maxImageExtent.width) < (actualExtent.width) ? (capabilities.maxImageExtent.width) : (actualExtent.width));
             uint32_t tempHeight = ((capabilities.maxImageExtent.height) < (actualExtent.height) ? (capabilities.maxImageExtent.height) : (actualExtent.height));
             tempWidth = ((capabilities.minImageExtent.width) > (actualExtent.width) ? (capabilities.minImageExtent.width) : (actualExtent.width));
             tempHeight = ((capabilities.minImageExtent.height) > (actualExtent.height) ? (capabilities.minImageExtent.height) : (actualExtent.height));
@@ -526,6 +525,13 @@ private:
         {
             throw std::runtime_error("failed to create swap chain!");
         }
+
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+        swapChainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+
+        swapChainImageFormat = surfaceFormat.format;
+        swapChainExtent = extent;
     }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
