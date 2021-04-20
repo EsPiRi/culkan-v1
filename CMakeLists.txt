@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(
 	external
 	shaders
+	inc
 	)
 
 add_subdirectory(external/glfw-3.3.4)

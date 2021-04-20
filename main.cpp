@@ -17,6 +17,7 @@
 #include <utility>
 #include <fstream>
 #include <filesystem>
+#include <Window.hpp>
 
 const uint32_t WIDTH = 1280;
 const uint32_t HEIGHT = 720;
@@ -95,9 +96,13 @@ static std::vector<char> readFile(const std::string &filename)
 class HelloTriangleApplication
 {
 public:
+    GLFWwindow *window;
+    HelloTriangleApplication(GLFWwindow *handle):window(handle)
+    {
+    }
     void run()
     {
-        initWindow();
+        //initWindow();
         initVulkan();
         mainLoop();
         cleanup();
@@ -105,8 +110,6 @@ public:
 
 private:
     std::string shaderPath = "../../shaders/";
-
-    GLFWwindow *window;
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -138,16 +141,6 @@ private:
     std::vector<VkFence> inFlightFences;
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
-
-    void initWindow()
-    {
-        glfwInit();
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Culkan", nullptr, nullptr);
-    }
 
     void initVulkan()
     {
@@ -385,8 +378,8 @@ private:
     }
     void createGraphicsPipeline()
     {
-        auto vertShaderCode = readFile(shaderPath + "vert.spv");
-        auto fragShaderCode = readFile(shaderPath + "frag.spv");
+        auto vertShaderCode = readFile(shaderPath + "shaderBase.vert.spv");
+        auto fragShaderCode = readFile(shaderPath + "shaderBase.frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -588,7 +581,7 @@ private:
 
         vkDestroyInstance(instance, nullptr);
 
-        glfwDestroyWindow(window);
+        //glfwDestroyWindow(window);
 
         glfwTerminate();
     }
@@ -1035,7 +1028,8 @@ private:
 
 int main()
 {
-    HelloTriangleApplication app;
+    Window window(1366, 768);
+    HelloTriangleApplication app(window.handle);
 
     try
     {
