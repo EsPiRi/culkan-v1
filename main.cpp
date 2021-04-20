@@ -102,7 +102,7 @@ public:
     }
     void run()
     {
-        //initWindow();
+        
         initVulkan();
         mainLoop();
         cleanup();
@@ -579,11 +579,9 @@ private:
 
         vkDestroySurfaceKHR(instance, surface, nullptr);
 
-        vkDestroyInstance(instance, nullptr);
+        vkDestroyInstance(instance, nullptr);        
 
-        //glfwDestroyWindow(window);
-
-        glfwTerminate();
+        
     }
     void createInstance()
     {

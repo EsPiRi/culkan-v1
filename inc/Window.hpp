@@ -5,7 +5,7 @@ class Window
 {
 public:
 	GLFWwindow *handle;
-	Window(int width,int height)
+	Window(int width, int height)
 	{
 		glfwInit();
 
@@ -17,5 +17,6 @@ public:
 	~Window()
 	{
 		glfwDestroyWindow(handle);
+		glfwTerminate();
 	}
 };
